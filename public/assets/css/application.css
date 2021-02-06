@@ -2,3 +2,7 @@
   overflow: auto;
   height: 500px;
 }
+
+form {
+  margin-bottom: 20px;
+}

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Ruby WebSockets Chat Demo</title>
+    <title>Snatch</title>
     <link href="assets/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="assets/css/application.css" rel="stylesheet" media="screen">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,22 +9,36 @@
   <body>
     <div class="container">
       <div class="jumbotron">
-        <h1>Ruby WebSockets Chat Demo</h1>
-        <p>This is a Ruby WebSockets Chat Demo. The code lives <a href="https://github.com/heroku-examples/ruby-websockets-chat-demo">on GitHub</a>. You can find the full guide <a href="https://devcenter.heroku.com/articles/ruby-websockets">on Heroku DevCenter</a>.</p>
+        <h1>Snatch</h1>
+        <p>It's snatching time.</p>
       </div>
-      <form id="input-form" class="form-inline">
+      <form id="room-form" class="form-inline">
         <div class="form-group">
-          <input id="input-handle" type="text" class="form-control" placeholder="Enter handle" autofocus />
+          <label>Room</label>
+          <input id="room-form-input" type="text" class="form-control" placeholder="Enter game room name" autofocus />
         </div>
+        <button class="btn btn-primary" type="submit">Go</button>
+      </form>
+      <form id="handle-form" class="form-inline">
         <div class="form-group">
-          <input id="input-text" type="text" class="form-control" placeholder="Enter chat text here!" autofocus />
+          <label>Handle</label>
+          <input id="handle-form-input" type="text" class="form-control" placeholder="Enter handle" autofocus />
+        </div>
+        <button class="btn btn-primary" type="submit">OK</button>
+      </form>
+      <form id="word-form" class="form-inline">
+        <div class="form-group">
+          <label>Word</label>
+          <input id="word-form-input" type="text" class="form-control" placeholder="Enter word" autofocus />
         </div>
         <button class="btn btn-primary" type="submit">Send</button>
       </form>
       <div class="page-header">
-        <h1>Chat</h1>
+        <h1>Log</h1>
       </div>
-      <div id="chat-text">
+      <div id="chat-container">
+      </div>
+      <div id="handle-container">
       </div>
     </div>
 

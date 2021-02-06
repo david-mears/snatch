@@ -2,17 +2,42 @@ var scheme   = "<%= @scheme %>";
 var uri      = scheme + window.document.location.host + "/";
 var ws       = new WebSocket(uri);
 ws.onmessage = function(message) {
-  var data = JSON.parse(message.data);
-  $("#chat-text").append("<div class='panel panel-default'><div class='panel-heading'>" + data.handle + "</div><div class='panel-body'>" + data.text + "</div></div>");
-  $("#chat-text").stop().animate({
-    scrollTop: $('#chat-text')[0].scrollHeight
+  const data = JSON.parse(message.data);
+  const chat = `#${data.room}-chat-text`
+  $(chat).append(`<div class='panel panel-default'>
+                    <div class='panel-heading'>${data.handle}</div>
+                    <div class='panel-body'>${data.word}</div>
+                  </div>`);
+  $(chat).stop().animate({
+    scrollTop: $(chat)[0].scrollHeight
   }, 800);
 };
 
-$("#input-form").on("submit", function(event) {
+$("#room-form").on("submit", function(event) {
   event.preventDefault();
-  var handle = $("#input-handle")[0].value;
-  var text   = $("#input-text")[0].value;
-  ws.send(JSON.stringify({ handle: handle, text: text }));
-  $("#input-text")[0].value = "";
+
+  const room = $("#room-form-input")[0].value;
+  $("#chat-container").html(`<div id="room-name-data-div" data-room="${room}"></div>
+                             <div id="${room}-chat-text"></div>`)
+
+  $("#room-form").remove()
+});
+
+$("#handle-form").on("submit", function(event) {
+  event.preventDefault();
+
+  const handle = $("#handle-form-input")[0].value;
+  $("#handle-container").html(`<div id="handle-data-div" data-handle="${handle}"></div>`)
+
+  $("#handle-form").remove()
+});
+
+$("#word-form").on("submit", function(event) {
+  event.preventDefault();
+
+  const room = $("#room-name-data-div").data("room");
+  const handle = $("#handle-data-div").data("handle");
+  const word   = $("#word-form-input")[0].value;
+  ws.send(JSON.stringify({room: room, handle: handle, word: word }));
+  $("#word-form-input")[0].value = "";
 });
