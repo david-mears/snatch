@@ -1,3 +1,7 @@
+# Snatch
+
+A fork of the below Heroku demo app, adapted from a chat app to a half-finished Snatch game implementation.
+
 # Ruby WebSockets Chat Demo
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
