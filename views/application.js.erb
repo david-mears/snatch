@@ -1,43 +1,144 @@
-var scheme   = "<%= @scheme %>";
-var uri      = scheme + window.document.location.host + "/";
-var ws       = new WebSocket(uri);
+const scheme = "<%= @scheme %>";
+const uri = scheme + window.document.location.host + "/";
+const ws = new WebSocket(uri);
+
+$(document).ready(() => {
+  let taglines = [`Gotta Snatch 'em all.`, `Features: weeping and gsnatching of tiles.`, `Tread softly, because you tread on my dampers.`, `If Snatch be the food of love, play on.`, `<i>Live, Laugh, Snatch.</i>`, `'Tis better to have spelt and lost than never to have spelt at all.`, `Tiling the universe with anagrams`, `First you snatch it, then you've snaught it.`, `You can snatch more tiles with 'vinegar' than with 'honey', can you not?`, `A cat in gloves snatches no mice`, `This pun is really <i>Snatching</i> at straws, as it were.`, `The early birm snatches the word.`, `That's a nice word you've got there.`, `As played by Ballpoint-pen-addict Cumbersnatch.`, `Kids and adults all agree: the funnest game in history!`, `<i>Ad astra per snatchere</i>`, `<i>Capere aude</i>`, `<i>Tila iacta est</i>`, `<i>Ludus longus, vita brevis</i>`, `A 'Snatchional' Disgrace`, `A Snatch-22 Sit-com`, `Snatch defeat from the jaws of victory.`, `Snatch jaws from the victory of defeat.`, `Snatch defeat from the victory of jaws.`, `'There <i>is</i> an I in 'teatime'`, `Situation Normal: All Tiles Carry 'H'`, `Words, not deeds.`, `There's always time for a Snatch.`, `Insert Snatchphrase here.`, `<i>Carpe verbum.</i>`, `<i>Verba, non acta.</i>`, `<i>Capio ergo sum.</i>`, `<i>Lorem ipsum dolor sit amet.</i>`, `"Guards, Snatch him!"`, `Invasion of the Lettersnatchers.`, `Snatch as snatch can.`, `'Snaturally delicious.`, `#StopTheSteal`, `You can't Snatch me, I'm the sningerbread man.`, `"This is going on SnatchPat."`, `A matter of the utmos' Snatchional importance.`, `Now banned in 13 countries.`, `Fast and Frumious.`, `<i>Le jeu d'esnatche.</i>`, `Das ist ein Schnatschenspiel!`, `The new online experience by GameStop.`, `It's like Scrabble, but with latency issues.`, `It's Snatcho favourite game, but it's pretty good.`, `<i>Steal away, steal away, steal away to Jesus</i> - Snatch King Cole`, `An absolute steal.`, `First they ban anagrams. Now they've - and it makes me <i>frumious</i> - banned a Snatch!`]
+  taglines.sort(() => Math.random() - 0.5)
+  $("#tagline").html(taglines[0])
+});
+
+const readTheRoom = () => {
+  return $("#room-name-data-div").data("room");
+}
+
+const readTheHandle = () => {
+  return $("#handle-data-div").data("handle");
+}
+
+const readTheWord = () => {
+  return $("#word-form-input")[0].value;
+}
+
+const updateTiles = (data) => {
+  let tileCards = ''
+  data.tiles.forEach((tile, index) => {
+    let sideUp = 'reverse'
+    if (data.overturned_indexes.includes(index.toString())) {
+      sideUp = 'obverse'
+    } else {
+      tile = '?'
+    }
+
+    const tilesPerRow = 12
+    if (index % tilesPerRow === 0) {
+      tileCards += `<tr>`
+    }
+    tileCards += `<td><a ${ sideUp === 'reverse' ? `href="#"` : `` } id="tile${index}">
+                      <div class="tile ${sideUp}"><div class="letter"><strong>${tile}</strong></div></div>
+                    </a></td>`
+    if (index % tilesPerRow === (tilesPerRow - 1)) {
+      tileCards += `</tr>`
+    }
+  })
+
+  $("#tiles-container").html(`<table><tbody>${tileCards}</tbody></table>`)
+  data.tiles.forEach((tile, index) => {
+    const identifier = `#tile${index}`
+    $(identifier).click((event) => {
+      event.preventDefault();
+      ws.send(JSON.stringify({
+        action: 'flip',
+        room: readTheRoom(),
+        handle: readTheHandle(),
+        tile_index: index,
+        tile_letter: data.tiles[index] }));
+    })
+  })
+}
+
+const updateWords = (data) => {
+  const players = data['players'].sort((player) => player === data['handle']) // Put current player at top
+
+  wordsHTML = ''
+  players.forEach((player) => {
+    wordsHTML += `<div class='panel panel-default'>
+                    <div class='panel-heading'>${player}</div>
+                    <div class='panel-body'>${data[player + '_words']}</div>
+                  </div>`
+  })
+  $(`#word-container`).html(`<div>${wordsHTML}</div>`);
+}
+
+//const updateWords = (data) => {
+//  let wordsHTML = []
+//  data.words.forEach((word) => {
+//    wordsHTML.push(`<span>${word}</span>`)
+//  })
+//  $('#words').html(wordsHTML)
+//}
+
 ws.onmessage = function(message) {
   const data = JSON.parse(message.data);
-  const chat = `#${data.room}-chat-text`
-  $(chat).append(`<div class='panel panel-default'>
-                    <div class='panel-heading'>${data.handle}</div>
-                    <div class='panel-body'>${data.word}</div>
-                  </div>`);
-  $(chat).stop().animate({
-    scrollTop: $(chat)[0].scrollHeight
-  }, 800);
+
+  if (data.action === 'word') {
+    updateTiles(data)
+    updateWords(data)
+  } else if (data.action === 'flip') {
+    updateTiles(data)
+  } else if (data.action === 'join') {
+    updateTiles(data)
+  }
 };
 
 $("#room-form").on("submit", function(event) {
   event.preventDefault();
-
   const room = $("#room-form-input")[0].value;
-  $("#chat-container").html(`<div id="room-name-data-div" data-room="${room}"></div>
-                             <div id="${room}-chat-text"></div>`)
-
+  if (room === '') {
+    return
+  }
+  $("#word-container").html(`<div id="room-name-data-div" data-room="${room}"></div>
+                           <div id="${room}-words"></div>`)
   $("#room-form").remove()
+  $("#handle-form").html(`<div class="form-group">
+                          <label>Handle</label>
+                          <input id="handle-form-input" type="text" class="form-control" placeholder="Enter handle" autofocus />
+                        </div>
+                        <button class="btn btn-primary" type="submit">OK</button>`)
 });
 
 $("#handle-form").on("submit", function(event) {
   event.preventDefault();
-
   const handle = $("#handle-form-input")[0].value;
+  if (handle === '') {
+    return
+  }
+  ws.send(JSON.stringify({
+    action: 'join',
+    room: readTheRoom(),
+    handle: handle
+  }));
   $("#handle-container").html(`<div id="handle-data-div" data-handle="${handle}"></div>`)
-
   $("#handle-form").remove()
+  $("#word-form").html(`<div class="form-group">
+                        <label>Word</label>
+                        <input id="word-form-input" type="text" class="form-control" placeholder="Enter word" autofocus />
+                      </div>
+                      <button class="btn btn-primary" type="submit">Send</button>`)
 });
 
 $("#word-form").on("submit", function(event) {
   event.preventDefault();
-
-  const room = $("#room-name-data-div").data("room");
-  const handle = $("#handle-data-div").data("handle");
-  const word   = $("#word-form-input")[0].value;
-  ws.send(JSON.stringify({room: room, handle: handle, word: word }));
+  const word = $("#word-form-input")[0].value
+  if (word === '') {
+    return
+  }
+  ws.send(JSON.stringify({
+    action: 'word',
+    room: readTheRoom(),
+    handle: readTheHandle(),
+    word: readTheWord() }));
   $("#word-form-input")[0].value = "";
 });
+
+

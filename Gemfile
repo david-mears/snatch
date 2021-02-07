@@ -1,9 +1,12 @@
-source "https://rubygems.org"
+# frozen_string_literal: true
 
-ruby "2.7.2"
+source 'https://rubygems.org'
 
-gem "faye-websocket"
-gem "foreman"
-gem "sinatra"
-gem "puma"
-gem "redis"
+ruby '2.7.2'
+
+gem 'faye-websocket'
+gem 'foreman'
+gem 'puma'
+gem 'redis'
+gem 'rubocop'
+gem 'sinatra'

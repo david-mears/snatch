@@ -9,36 +9,28 @@
   <body>
     <div class="container">
       <div class="jumbotron">
-        <h1>Snatch</h1>
-        <p>It's snatching time.</p>
-      </div>
-      <form id="room-form" class="form-inline">
-        <div class="form-group">
-          <label>Room</label>
-          <input id="room-form-input" type="text" class="form-control" placeholder="Enter game room name" autofocus />
+        <div class="row">
+          <div class="col-md-7">
+            <h1>Snatch</h1>
+            <p id="tagline"></p>
+          </div>
+          <div class="col-md-5">
+            <form id="room-form">
+              <div class="form-group">
+                <label>Room</label>
+                <input id="room-form-input" type="text" class="form-control" placeholder="Enter game room name" autofocus />
+              </div>
+              <button class="btn btn-primary" type="submit">Go</button>
+            </form>
+            <form id="handle-form"></form>
+            <form id="word-form"></form>
+          </div>
         </div>
-        <button class="btn btn-primary" type="submit">Go</button>
-      </form>
-      <form id="handle-form" class="form-inline">
-        <div class="form-group">
-          <label>Handle</label>
-          <input id="handle-form-input" type="text" class="form-control" placeholder="Enter handle" autofocus />
-        </div>
-        <button class="btn btn-primary" type="submit">OK</button>
-      </form>
-      <form id="word-form" class="form-inline">
-        <div class="form-group">
-          <label>Word</label>
-          <input id="word-form-input" type="text" class="form-control" placeholder="Enter word" autofocus />
-        </div>
-        <button class="btn btn-primary" type="submit">Send</button>
-      </form>
-      <div class="page-header">
-        <h1>Log</h1>
       </div>
-      <div id="chat-container">
-      </div>
-      <div id="handle-container">
+      <div id="game" class="row">
+        <div id="tiles-container" class="col-md-7"></div>
+        <div id="word-container" class="col-md-5"></div>
+        <div id="handle-container"></div>
       </div>
     </div>
 

@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require './app'
-require './middlewares/chat_backend'
+require './middlewares/snatch_backend'
 
-use ChatDemo::ChatBackend
+use Snatch::SnatchBackend
 
-run ChatDemo::App
+run Snatch::App

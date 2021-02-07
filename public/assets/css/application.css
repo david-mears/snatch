@@ -1,8 +1,49 @@
-#chat-text {
-  overflow: auto;
-  height: 500px;
+a:hover, a:focus {
+  text-decoration: none;
+  /* override color change with bootstrap anchor text color */
+  color: #428bca;
 }
 
 form {
   margin-bottom: 20px;
+  max-width: 400px;
+}
+
+button {
+  display: block;
+}
+
+td {
+  width: 5%
+}
+
+.tile {
+  margin: 8px;
+  text-align: center;
+  font-size: 20px;
+  border: solid white 1px;
+  border-radius: 6px;
+  box-shadow: 3px 3px #cdd;
+}
+
+.reverse:focus, .reverse:hover {
+  background-color: #ddd;
+  box-shadow: 3px 3px #bcc;
+}
+
+.obverse {
+  border: 1px solid #eee;
+}
+
+.reverse {
+  background-color: #eee;
+  color: #eee;
+}
+
+body, h1 {
+  font-family: Monaco, Menlo, Consolas, "Courier New", monospace
+}
+
+table {
+  margin-bottom: 200px;
 }
