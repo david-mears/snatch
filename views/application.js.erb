@@ -3,7 +3,7 @@ const uri = scheme + window.document.location.host + "/";
 const ws = new WebSocket(uri);
 
 $(document).ready(() => {
-  let taglines = [`Gotta Snatch 'em all.`, `Features: weeping and gsnatching of tiles.`, `Tread softly, because you tread on my dampers.`, `If Snatch be the food of love, play on.`, `<i>Live, Laugh, Snatch.</i>`, `'Tis better to have spelt and lost than never to have spelt at all.`, `Tiling the universe with anagrams`, `First you snatch it, then you've snaught it.`, `You can snatch more tiles with 'vinegar' than with 'honey', can you not?`, `A cat in gloves snatches no mice`, `This pun is really <i>Snatching</i> at straws, as it were.`, `The early birm snatches the word.`, `That's a nice word you've got there.`, `As played by Ballpoint-pen-addict Cumbersnatch.`, `Kids and adults all agree: the funnest game in history!`, `<i>Ad astra per snatchere</i>`, `<i>Capere aude</i>`, `<i>Tila iacta est</i>`, `<i>Ludus longus, vita brevis</i>`, `A 'Snatchional' Disgrace`, `A Snatch-22 Sit-com`, `Snatch defeat from the jaws of victory.`, `Snatch jaws from the victory of defeat.`, `Snatch defeat from the victory of jaws.`, `'There <i>is</i> an I in 'teatime'`, `Situation Normal: All Tiles Carry 'H'`, `Words, not deeds.`, `There's always time for a Snatch.`, `Insert Snatchphrase here.`, `<i>Carpe verbum.</i>`, `<i>Verba, non acta.</i>`, `<i>Capio ergo sum.</i>`, `<i>Lorem ipsum dolor sit amet.</i>`, `"Guards, Snatch him!"`, `Invasion of the Lettersnatchers.`, `Snatch as snatch can.`, `'Snaturally delicious.`, `#StopTheSteal`, `You can't Snatch me, I'm the sningerbread man.`, `"This is going on SnatchPat."`, `A matter of the utmos' Snatchional importance.`, `Now banned in 13 countries.`, `Fast and Frumious.`, `<i>Le jeu d'esnatche.</i>`, `Das ist ein Schnatschenspiel!`, `The new online experience by GameStop.`, `It's like Scrabble, but with latency issues.`, `It's Snatcho favourite game, but it's pretty good.`, `<i>Steal away, steal away, steal away to Jesus</i> - Snatch King Cole`, `An absolute steal.`, `First they ban anagrams. Now they've - and it makes me <i>frumious</i> - banned a Snatch!`]
+  let taglines = [`Gotta Snatch 'em all.`, `Features: weeping and gsnatching of tiles.`, `Tread softly, because you tread on my tiles.`, `If Snatch be the food of love, play on.`, `<i>Live, Laugh, Snatch.</i>`, `'Tis better to have snatched and lost than never to have snatched at all.`, `Snatch me no snatches.`, `Tiling the universe with anagrams`, `First they came for the three-letter words, and I did not speak out, because I was thinking of a different word at the time.`, `First you snatch it, then you've snaught it.`, `You can snatch more tiles with 'vinegar' than with 'honey' (can you not?)`, `A cat in gloves snatches no mice`, `This pun is really <i>Snatching</i> at straws, as it were.`, `The early birm snatches the word.`, `That's a nice word you've got there.`, `As played by Ballpoint-pen-addict Cumbersnatch.`, `Kids and adults all agree: the funnest game in history!`, `<i>Ad astra per snatchere</i>`, `<i>Capere aude</i>`, `<i>Tila iacta est</i>`, `<i>Ludus longus, vita brevis</i>`, `A 'Snatchional' Disgrace`, `A Snatch-22 Sit-com`, `Snatch defeat from the jaws of victory.`, `Snatch jaws from the victory of defeat.`, `Snatch defeat from the victory of jaws.`, `'There <i>is</i> an I in 'teatime'`, `Situation Normal: All Tiles Carry 'H'`, `Words, not deeds.`, `There's always time for a Snatch.`, `Insert Snatchphrase here.`, `<i>Carpe verbum.</i>`, `<i>Verba, non acta.</i>`, `<i>Capio ergo sum.</i>`, `<i>Lorem ipsum dolor sit amet.</i>`, `"Guards, Snatch him!"`, `Invasion of the Lettersnatchers.`, `Snatch as snatch can.`, `'Snaturally delicious.`, `#StopTheSteal`, `You can't Snatch me, I'm the sningerbread man.`, `"This is going on SnatchPat."`, `A matter of the utmos' Snatchional importance.`, `Now banned in 13 countries.`, `Fast and Frumious.`, `<i>Le jeu d'esnatche.</i>`, `Das ist ein Schnatschenspiel!`, `The new online experience by GameStop.`, `It's like Scrabble, but with latency issues.`, `It's Snatcho favourite game, but it's pretty good.`, `<i>Steal away, steal away, steal away to Jesus</i> - Snatch King Cole`, `An absolute steal.`, `First they ban anagrams. Now they've - and it makes me <i>frumious</i> - banned a Snatch!`]
   taglines.sort(() => Math.random() - 0.5)
   $("#tagline").html(taglines[0])
 });
@@ -67,16 +67,8 @@ const updateWords = (data) => {
                     <div class='panel-body'>${data[player + '_words']}</div>
                   </div>`
   })
-  $(`#word-container`).html(`<div>${wordsHTML}</div>`);
+  $(`#${data.room}-words`).html(`<div>${wordsHTML}</div>`);
 }
-
-//const updateWords = (data) => {
-//  let wordsHTML = []
-//  data.words.forEach((word) => {
-//    wordsHTML.push(`<span>${word}</span>`)
-//  })
-//  $('#words').html(wordsHTML)
-//}
 
 ws.onmessage = function(message) {
   const data = JSON.parse(message.data);
@@ -88,6 +80,7 @@ ws.onmessage = function(message) {
     updateTiles(data)
   } else if (data.action === 'join') {
     updateTiles(data)
+    updateWords(data)
   }
 };
 
@@ -133,6 +126,7 @@ $("#word-form").on("submit", function(event) {
   if (word === '') {
     return
   }
+  console.log(readTheRoom())
   ws.send(JSON.stringify({
     action: 'word',
     room: readTheRoom(),
