@@ -4,6 +4,7 @@ require 'faye/websocket'
 require 'redis'
 require 'json'
 require 'erb'
+require 'pry'
 
 module Snatch
   class SnatchBackend
