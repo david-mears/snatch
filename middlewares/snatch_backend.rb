@@ -34,6 +34,8 @@ module Snatch
     end
 
     def call(env)
+      @session = Rack::Request.new(env).session
+
       if Faye::WebSocket.websocket?(env)
         ws = Faye::WebSocket.new(env, nil, { ping: KEEPALIVE_TIME })
 
@@ -52,12 +54,14 @@ module Snatch
           puts "\n\n\n\n\n\n"
           p [:data, data]
 
-          initialize_room if @redis.hget(room_key, 'tiles').nil?
-          perform_any_actions
+          p :authenticated?, authenticated?
+          if authenticated?
+            initialize_room if @redis.hget(room_key, 'tiles').nil?
+            perform_any_actions
 
-          data_to_publish = data.merge(room_info)
-          p "Data to publish: #{data_to_publish}"
-          @redis.publish(CHANNEL, JSON.generate(data_to_publish))
+            p "Data to publish: #{data_to_publish}"
+            @redis.publish(CHANNEL, JSON.generate(data_to_publish))
+          end
         end
 
         ws.on :close do |event|
@@ -76,6 +80,14 @@ module Snatch
 
     private
 
+    def authenticated?
+      @session['authenticity_token'] == data['authenticity_token']
+    end
+
+    def data_to_publish
+      data.merge(room_info).tap { |hash| hash.delete('authenticity_token') }
+    end
+
     def initialize_room
       p "Initializing room"
       @redis.del(room_key)
@@ -90,14 +102,29 @@ module Snatch
     end
 
     def perform_any_actions
+      p :authorised?, authorised?
+
       case data['action']
       when 'flip'
+        return unless authorised?
         flip_tile
       when 'word'
+        return unless authorised?
         take_any_used_letters
       when 'join'
+        # This should only happen once, at the start of a session.
+
+        # Authorise: As a certain player, I have authority over some data and not others.
+        # The session stores the player handle (and game name), so that a player can only update the player(/game)
+        # that they originally claimed to be (in).
+        @session['handle'] = current_player
+        @session['room'] = data['room']
         add_player_to_room
       end
+    end
+
+    def authorised?
+      @session['handle'] == current_player && @session['room'] == data['room']
     end
 
     def flip_tile
@@ -112,8 +139,9 @@ module Snatch
     end
 
     def word_in?(word, letters)
+      return false if word.length == 0
       letters.each(&:upcase!)
-      word.split('').each { |letter| return false if letters.delete(letter) == letters }
+      word.split('').each { |letter| return false if letters.tap{ |letters| letters.delete(letter) }.length == letters.length }
       true
     end
 
@@ -178,7 +206,6 @@ module Snatch
     end
 
     def all_players_words
-      p [:players_length, players.length]
       players.each_with_object({}) do |player, hash|
         hash["#{player}_words"] = words_of_player(player)
       end
@@ -195,7 +222,6 @@ module Snatch
     end
 
     def overturned_letters
-      p overturned_letters
       JSON.parse(@redis.hget(room_key, 'overturned_letters'))
     end
 
@@ -224,7 +250,6 @@ module Snatch
     end
 
     def room_key
-      p [:room_key, "room:#{data['room']}"]
       "room:#{data['room']}"
     end
   end

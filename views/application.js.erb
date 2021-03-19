@@ -20,6 +20,10 @@ const readTheWord = () => {
   return $("#word-form-input")[0].value;
 }
 
+const readTheAuthenticityToken = () => {
+  return $("#authenticity-token-data-div").data("authenticity-token");
+}
+
 const updateTiles = (data) => {
   let tileCards = ''
   data.tiles.forEach((tile, index) => {
@@ -48,6 +52,7 @@ const updateTiles = (data) => {
     $(identifier).click((event) => {
       event.preventDefault();
       ws.send(JSON.stringify({
+        authenticity_token: readTheAuthenticityToken(),
         action: 'flip',
         room: readTheRoom(),
         handle: readTheHandle(),
@@ -107,6 +112,7 @@ $("#handle-form").on("submit", function(event) {
     return
   }
   ws.send(JSON.stringify({
+    authenticity_token: readTheAuthenticityToken(),
     action: 'join',
     room: readTheRoom(),
     handle: handle
@@ -126,8 +132,8 @@ $("#word-form").on("submit", function(event) {
   if (word === '') {
     return
   }
-  console.log(readTheRoom())
   ws.send(JSON.stringify({
+    authenticity_token: readTheAuthenticityToken(),
     action: 'word',
     room: readTheRoom(),
     handle: readTheHandle(),
